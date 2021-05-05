@@ -1,3 +1,5 @@
+import { FC, memo } from "react";
+
 import TodoItem from './TodoItem/TodoItem';
 
 import { Todo } from "../../interfaces";
@@ -10,7 +12,9 @@ interface ListProps {
   toggleTodo(id: string): void;
 }
 
-const List: React.FC<ListProps> = ({ todos, removeTodo, toggleTodo }) => {
+const List: FC<ListProps> = ({ todos = [], removeTodo, toggleTodo }) => {
+  console.log('sadasdsa');
+  
   if (!todos || !todos.length) {
     return <div className="addTodos-placeholder">No todos yet!</div>;
   }
@@ -20,6 +24,7 @@ const List: React.FC<ListProps> = ({ todos, removeTodo, toggleTodo }) => {
       {todos.map((todoItem: Todo) => {
         return (
           <TodoItem
+            key={todoItem.id}
             onRemove={removeTodo}
             onToggle={toggleTodo}
             {...todoItem}
@@ -30,4 +35,4 @@ const List: React.FC<ListProps> = ({ todos, removeTodo, toggleTodo }) => {
   )
 };
 
-export default List;
+export default memo(List);

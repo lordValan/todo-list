@@ -1,3 +1,5 @@
+import { FC, memo } from "react";
+
 import { 
     Checkbox, ListItem, ListItemIcon, ListItemSecondaryAction, ListItemText, 
     IconButton
@@ -14,7 +16,7 @@ interface Props extends Todo {
     highlighted?: string;
 }
 
-const TodoItem: React.FC<Props> = ({ id, completed, title, onRemove, onToggle, highlighted = '' }) => {
+const TodoItem: FC<Props> = ({ id, completed, title, onRemove, onToggle, highlighted = '' }) => {
     return (
         <ListItem
           key={id}
@@ -48,4 +50,4 @@ const TodoItem: React.FC<Props> = ({ id, completed, title, onRemove, onToggle, h
       );
 }
 
-export default TodoItem;
+export default memo(TodoItem);

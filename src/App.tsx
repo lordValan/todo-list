@@ -1,17 +1,18 @@
-import "./App.css";
-
-import React, { FunctionComponent, useState, useEffect } from "react";
+import { FC, useState, useEffect, useCallback } from "react";
 import { CSSTransition } from "react-transition-group";
 import { useMutation, useQuery } from "@apollo/client";
+
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 import { Todo } from "./interfaces";
 import graphqlRequests from "./graphqlRequests";
 
-import LinearProgress from "@material-ui/core/LinearProgress";
-import TextField from "@material-ui/core/TextField";
 import Header from "./components/Header/Header";
+import AddTodoForm from './components/AddTodoForm/AddTodoForm';
 import List from "./components/List/List";
 import Error from "./components/Error/Error";
+
+import "./App.css";
 
 const {
   getAllTodosGraphql,
@@ -19,11 +20,10 @@ const {
   removeTodoGraphql,
   updateTodoGraphql,
 } = graphqlRequests;
-const App: FunctionComponent = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [input, setInput] = useState<string>("");
-  const [error, setError] = useState<null | string>(null);
 
+const App: FC = () => {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const { data: allTodos, loading: getAllTodosLoading } = useQuery(
@@ -38,52 +38,64 @@ const App: FunctionComponent = () => {
     updateTodoGraphql
   );
 
-  const handleAddTodo = (evt: React.FormEvent) => {
-    evt.preventDefault();
+  // handlers
+
+  const handleAddTodo = useCallback(async (input: string) => {
     if (!input) {
       setError("Type something");
       return;
     }
 
-    addTodo({
-      variables: {
-        title: { title: input },
-      },
-    })
-      .then(({ data }) => {
-        setTodos((prev) => [data.addTodo, ...prev]);
+    try {
+      const { data } = await addTodo({
+        variables: {
+          title: { title: input },
+        },
+      });
+
+      setTodos((prev) => [data.addTodo, ...prev]);
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [addTodo]);
+
+  const handleRemoveTodo = useCallback(async (id: string) => {
+    try {
+      await removeTodo({
+        variables: {
+          id: id,
+        },
+      });
+
+      setTodos((prev) => prev.filter((el) => el.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [removeTodo]);
+
+  const handleToggleTodo = useCallback(async (id: string) => {
+    try {
+      const { data } = await toggleTodo({
+        variables: {
+          id: id,
+        },
       })
-      .catch((err) => setError(err.message));
+      
+      setTodos(data.updateTodo);
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [toggleTodo]);
 
-    setInput("");
-  };
-
-  const handleRemoveTodo = (id: string) => {
-    removeTodo({
-      variables: {
-        id: id,
-      },
-    })
-      .then(() => setTodos((prev) => prev.filter((el) => el.id !== id)))
-      .catch((err) => setError(err.message));
-  };
-
-  const handleToggleTodo = (id: string) => {
-    toggleTodo({
-      variables: {
-        id: id,
-      },
-    })
-      .then(({ data }) => setTodos(data.updateTodo))
-      .catch((err) => setError(err.message));
-  };
+  // effects
 
   useEffect(() => {
     if (!allTodos) {
       return;
     }
+    
     setTodos(allTodos?.getAllTodos);
-  }, [allTodos]);
+  }, [getAllTodosLoading]);
 
   useEffect(() => {
     if (error) {
@@ -96,12 +108,12 @@ const App: FunctionComponent = () => {
       addTodoLoading ||
       removeTodoLoading ||
       getAllTodosLoading ||
-      toggleTodoLoading === true
+      toggleTodoLoading
     ) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
+      return setLoading(true);
+    }  
+    
+    setLoading(false);
   }, [
     addTodoLoading,
     removeTodoLoading,
@@ -115,21 +127,9 @@ const App: FunctionComponent = () => {
       <div className="container">
         <Header />
         <Error error={error} />
-        <form autoComplete="off" onSubmit={handleAddTodo}>
-          <TextField
-            id="standard-basic"
-            style={{
-              width: "100%",
-            }}
-            label="Add your todo"
-            variant="standard"
-            color="primary"
-            value={input}
-            onChange={(evt) => setInput(evt.target.value)}
-          />
-        </form>
+        <AddTodoForm onFormSubmit={handleAddTodo} />
         <CSSTransition
-          in={todos.length !== 0}
+          in={todos.length > 0}
           timeout={250}
           classNames="transition-list"
         >
