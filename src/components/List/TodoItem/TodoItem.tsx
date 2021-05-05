@@ -4,14 +4,17 @@ import {
 } from "@material-ui/core";
 import { Delete as DeleteIcon } from '@material-ui/icons';
 
+import HighlightedText from './HighlightedText/HighlightedText';
+
 import { Todo } from "../../../interfaces";
 
 interface Props extends Todo {
     onRemove(id: string): void;
     onToggle(id: string): void;
+    highlighted?: string;
 }
 
-const TodoItem: React.FC<Props> = ({ id, completed, title, onRemove, onToggle }) => {
+const TodoItem: React.FC<Props> = ({ id, completed, title, onRemove, onToggle, highlighted = '' }) => {
     return (
         <ListItem
           key={id}
@@ -31,7 +34,10 @@ const TodoItem: React.FC<Props> = ({ id, completed, title, onRemove, onToggle })
             }
             disableTypography
           >
-            <span>{title}</span>
+            <HighlightedText 
+              text={title}
+              highlighted={highlighted}
+            />
           </ListItemText>
           <ListItemSecondaryAction onClick={() => onRemove(id)}>
             <IconButton className="delete-button">
