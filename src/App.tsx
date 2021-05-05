@@ -115,7 +115,6 @@ const App: FunctionComponent = () => {
       <div className="container">
         <Header />
         <Error error={error} />
-
         <form autoComplete="off" onSubmit={handleAddTodo}>
           <TextField
             id="standard-basic"

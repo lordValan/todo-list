@@ -8,6 +8,8 @@ import IconButton from "@material-ui/core/IconButton";
 import { Todo } from "../../interfaces";
 import "./List.css";
 
+import setSearchHighlighted from '../../utils/setSearchHighlighted';
+
 interface ListProps {
   todos?: Todo[];
   removeTodo(id: string): void;
@@ -15,6 +17,8 @@ interface ListProps {
 }
 
 const List: React.FC<ListProps> = ({ todos, removeTodo, toggleTodo }) => {
+  console.log(setSearchHighlighted('ipsum', 'Lorem ipsum'));
+  
   if (todos && todos.length !== 0) {
     return (
       <ul className="todo-list">
@@ -22,20 +26,24 @@ const List: React.FC<ListProps> = ({ todos, removeTodo, toggleTodo }) => {
           return (
             <ListItem
               key={el.id}
+              onClick={() => toggleTodo(el.id)}
               dense
               button
               divider
-              onClick={() => toggleTodo(el.id)}
             >
               <ListItemIcon>
                 <Checkbox checked={el.completed} />
               </ListItemIcon>
               <ListItemText
-                primary={el.title}
                 style={
-                  el.completed ? { textDecoration: "line-through" } : undefined
+                  el.completed 
+                    ? { textDecoration: "line-through" } 
+                    : undefined
                 }
-              />
+                disableTypography
+              >
+                <span>{el.title}</span>
+              </ListItemText>
               <ListItemSecondaryAction onClick={() => removeTodo(el.id)}>
                 <IconButton className="delete-button">
                   <DeleteIcon className="delete-icon" />
