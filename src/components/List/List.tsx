@@ -4,8 +4,6 @@ import TodoItem from './TodoItem/TodoItem';
 
 import { Todo } from "../../interfaces";
 
-import "./List.css";
-
 interface ListProps {
   todos?: Todo[];
   removeTodo(id: string): void;
@@ -13,8 +11,6 @@ interface ListProps {
 }
 
 const List: FC<ListProps> = ({ todos = [], removeTodo, toggleTodo }) => {
-  console.log('sadasdsa');
-  
   if (!todos || !todos.length) {
     return <div className="addTodos-placeholder">No todos yet!</div>;
   }

@@ -5,7 +5,12 @@ import { useMutation, useQuery } from "@apollo/client";
 import LinearProgress from "@material-ui/core/LinearProgress";
 
 import { Todo } from "./interfaces";
-import graphqlRequests from "./graphqlRequests";
+import {
+  getAllTodosGraphql,
+  addTodoGraphql,
+  removeTodoGraphql,
+  updateTodoGraphql,
+} from './graphql';
 
 import Header from "./components/Header/Header";
 import AddTodoForm from './components/AddTodoForm/AddTodoForm';
@@ -13,13 +18,6 @@ import List from "./components/List/List";
 import Error from "./components/Error/Error";
 
 import "./App.css";
-
-const {
-  getAllTodosGraphql,
-  addTodoGraphql,
-  removeTodoGraphql,
-  updateTodoGraphql,
-} = graphqlRequests;
 
 const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -127,7 +125,9 @@ const App: FC = () => {
       <div className="container">
         <Header />
         <Error error={error} />
-        <AddTodoForm onFormSubmit={handleAddTodo} />
+        <div className='inputs-container'>
+          <AddTodoForm onFormSubmit={handleAddTodo} />
+        </div>
         <CSSTransition
           in={todos.length > 0}
           timeout={250}
