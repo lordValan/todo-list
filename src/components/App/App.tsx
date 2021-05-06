@@ -48,17 +48,21 @@ const App: FC = () => {
     }
 
     try {
-     await addTodo({
+      const { data } = await addTodo({
         variables: {
           title: { title: input },
         },
       });
 
+      if (!searchInput) {
+        return setTodos((prev) => [data.addTodo, ...prev]);
+      }
+      
       refetchAllTodos();
     } catch (err) {
       setError(err.message)
     }
-  }, [addTodo, refetchAllTodos]);
+  }, [addTodo, searchInput, refetchAllTodos]);
 
   const handleRemoveTodo = useCallback(async (id: string) => {
     try {
@@ -67,6 +71,8 @@ const App: FC = () => {
           id: id,
         },
       });
+
+      setTodos((prev) => prev.filter((el: Todo) => el.id !== id));
 
       refetchAllTodos();
     } catch (err) {
@@ -82,6 +88,17 @@ const App: FC = () => {
         },
       })
       
+      setTodos((prev: Todo[]) => prev.map((todoItem: Todo) => {
+        if (todoItem.id === id) {
+          return {
+            ...todoItem,
+            completed: !todoItem.completed
+          }
+        }
+
+        return todoItem;
+      }));
+
       refetchAllTodos();
     } catch (err) {
       setError(err.message)
@@ -108,7 +125,7 @@ const App: FC = () => {
     }
     
     setTodos(allTodos?.getAllTodos);
-  }, [allTodos]);
+  }, [getAllTodosLoading]);
 
   useEffect(() => {
     if (error) {
