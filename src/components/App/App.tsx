@@ -27,7 +27,7 @@ const App: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
 
-  const { data: allTodos, loading: getAllTodosLoading } = useQuery(
+  const { data: allTodos, loading: getAllTodosLoading, refetch: refetchAllTodos } = useQuery(
     getAllTodosGraphql
   );
 
@@ -48,17 +48,17 @@ const App: FC = () => {
     }
 
     try {
-      const { data } = await addTodo({
+     await addTodo({
         variables: {
           title: { title: input },
         },
       });
 
-      setTodos((prev) => [data.addTodo, ...prev]);
+      refetchAllTodos();
     } catch (err) {
       setError(err.message)
     }
-  }, [addTodo]);
+  }, [addTodo, refetchAllTodos]);
 
   const handleRemoveTodo = useCallback(async (id: string) => {
     try {
@@ -68,25 +68,25 @@ const App: FC = () => {
         },
       });
 
-      setTodos((prev) => prev.filter((el: Todo) => el.id !== id));
+      refetchAllTodos();
     } catch (err) {
       setError(err.message);
     }
-  }, [removeTodo]);
+  }, [removeTodo, refetchAllTodos]);
 
   const handleToggleTodo = useCallback(async (id: string) => {
     try {
-      const { data } = await toggleTodo({
+      await toggleTodo({
         variables: {
           id: id,
         },
       })
       
-      setTodos(data.updateTodo);
+      refetchAllTodos();
     } catch (err) {
       setError(err.message)
     }
-  }, [toggleTodo]);
+  }, [toggleTodo, refetchAllTodos]);
 
   const handleSearchChange = useCallback(debounce((newSearchInput: string) => {
     if (newSearchInput.length > 2) {
@@ -98,7 +98,7 @@ const App: FC = () => {
     
     setSearchInput("");
     setTodos(allTodos?.getAllTodos);
-  }, 300), [getAllTodosLoading]);
+  }, 300), [allTodos]);
 
   // effects
 
@@ -108,7 +108,7 @@ const App: FC = () => {
     }
     
     setTodos(allTodos?.getAllTodos);
-  }, [getAllTodosLoading]);
+  }, [allTodos]);
 
   useEffect(() => {
     if (error) {
