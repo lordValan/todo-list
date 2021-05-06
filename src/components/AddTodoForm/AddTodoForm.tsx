@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import { FC, FormEvent, useState } from "react";
 
 import TextField from "@material-ui/core/TextField";
 
@@ -11,7 +11,7 @@ const AddTodoForm: FC<Props> = ({ onFormSubmit }) => {
 
     // handlers
 
-    const handleFormSubmit = async (evt: React.FormEvent) => {
+    const handleFormSubmit = async (evt: FormEvent) => {
         evt.preventDefault();
 
         await onFormSubmit(input);
@@ -22,7 +22,6 @@ const AddTodoForm: FC<Props> = ({ onFormSubmit }) => {
     return (
         <form autoComplete="off" onSubmit={handleFormSubmit}>
           <TextField
-            id="standard-basic"
             style={{
               width: "100%",
             }}

@@ -8,9 +8,9 @@ interface ListProps {
   todos?: Todo[];
   removeTodo(id: string): void;
   toggleTodo(id: string): void;
+  highlighted?: string;
 }
-
-const List: FC<ListProps> = ({ todos = [], removeTodo, toggleTodo }) => {
+  const List: FC<ListProps> = ({ todos = [], removeTodo, toggleTodo, highlighted = "" }) => {
   if (!todos || !todos.length) {
     return <div className="addTodos-placeholder">No todos yet!</div>;
   }
@@ -23,6 +23,7 @@ const List: FC<ListProps> = ({ todos = [], removeTodo, toggleTodo }) => {
             key={todoItem.id}
             onRemove={removeTodo}
             onToggle={toggleTodo}
+            highlighted={highlighted}
             {...todoItem}
           />
         );

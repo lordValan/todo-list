@@ -1,21 +1,23 @@
 import { FC, useState, useEffect, useCallback } from "react";
 import { CSSTransition } from "react-transition-group";
 import { useMutation, useQuery } from "@apollo/client";
+import { debounce } from "debounce";
 
 import LinearProgress from "@material-ui/core/LinearProgress";
 
-import { Todo } from "./interfaces";
+import { Todo } from "../../interfaces";
 import {
   getAllTodosGraphql,
   addTodoGraphql,
   removeTodoGraphql,
   updateTodoGraphql,
-} from './graphql';
+} from '../../graphql';
 
-import Header from "./components/Header/Header";
-import AddTodoForm from './components/AddTodoForm/AddTodoForm';
-import List from "./components/List/List";
-import Error from "./components/Error/Error";
+import Header from "../Header/Header";
+import AddTodoForm from '../AddTodoForm/AddTodoForm';
+import SearchTodoInput from '../SearchTodoInput/SearchTodoInput';
+import List from "../List/List";
+import Error from "../Error/Error";
 
 import "./App.css";
 
@@ -23,6 +25,7 @@ const App: FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [error, setError] = useState<null | string>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchInput, setSearchInput] = useState<string>("");
 
   const { data: allTodos, loading: getAllTodosLoading } = useQuery(
     getAllTodosGraphql
@@ -65,7 +68,7 @@ const App: FC = () => {
         },
       });
 
-      setTodos((prev) => prev.filter((el) => el.id !== id));
+      setTodos((prev) => prev.filter((el: Todo) => el.id !== id));
     } catch (err) {
       setError(err.message);
     }
@@ -84,6 +87,18 @@ const App: FC = () => {
       setError(err.message)
     }
   }, [toggleTodo]);
+
+  const handleSearchChange = useCallback(debounce((newSearchInput: string) => {
+    if (newSearchInput.length > 2) {
+      setSearchInput(newSearchInput);
+      setTodos((prev: Todo[]) => prev.filter((el: Todo) => el.title.toLowerCase().includes(newSearchInput)));
+
+      return;
+    }
+    
+    setSearchInput("");
+    setTodos(allTodos?.getAllTodos);
+  }, 300), [getAllTodosLoading]);
 
   // effects
 
@@ -127,6 +142,7 @@ const App: FC = () => {
         <Error error={error} />
         <div className='inputs-container'>
           <AddTodoForm onFormSubmit={handleAddTodo} />
+          <SearchTodoInput onChange={handleSearchChange} />
         </div>
         <CSSTransition
           in={todos.length > 0}
@@ -137,6 +153,7 @@ const App: FC = () => {
             todos={todos}
             removeTodo={handleRemoveTodo}
             toggleTodo={handleToggleTodo}
+            highlighted={searchInput}
           />
         </CSSTransition>
       </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
+import App from "./components/App/App";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import CssBaseline from "@material-ui/core/CssBaseline";
 
